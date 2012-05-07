@@ -3,7 +3,7 @@
 
 from pprint import pprint
 
-from kombu import BrokerConnection, Exchange, Queue
+from kombu import Exchange, Queue
 from kombu.mixins import ConsumerMixin
 
 nova_exchange = Exchange(name='nova',
@@ -31,12 +31,13 @@ class MessageHandler(ConsumerMixin):
                 ]
 
     def process_event(self, body, message):
-        #print body.keys()
+        print 'Raw body:', body
+        print 'Message :', message
         event_type = body['event_type']
         if not event_type.startswith('compute.instance'):
             print event_type, body['timestamp']
         else:
-            payload=body['payload']
+            payload = body['payload']
             interesting = dict(
                 event_type=body['event_type'],
                 timestamp=body['timestamp'],
@@ -61,9 +62,3 @@ if __name__ == '__main__':
             MessageHandler(conn).run()
         except KeyboardInterrupt:
             print 'Exiting'
-        # instance_exists(conn.channel()).declare()
-
-        # with conn.Consumer(instance_exists, callbacks=[show_message]) as consumer:
-        #     while True:
-        #         print 'looping...'
-        #         conn.drain_events()
