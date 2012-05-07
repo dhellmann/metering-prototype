@@ -1,6 +1,8 @@
 # Doesn't see exists events. Not waiting long enough, or listening in
 # the wrong way?
 
+from pprint import pprint
+
 from kombu import BrokerConnection, Exchange, Queue
 
 
@@ -18,7 +20,23 @@ instance_exists = Queue(name='notifications.info',
 
 
 def show_message(body, message):
-    print body
+    #print body.keys()
+    event_type = body['event_type']
+    if not event_type.startswith('compute.instance'):
+        print event_type, body['timestamp']
+    else:
+        payload=body['payload']
+        interesting = dict(
+            event_type=body['event_type'],
+            timestamp=body['timestamp'],
+            display_name=payload['display_name'],
+            user_id=payload['user_id'],
+            address=payload.get('address'),
+            tenant_id=payload.get('tenant_id'),
+            instance_id=payload.get('instance_id'),
+            )
+        pprint(interesting)
+    print
     message.ack()
 
 
