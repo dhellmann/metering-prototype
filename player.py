@@ -46,4 +46,7 @@ with open(args.input_file, 'rb') as input:
             else:
                 print event.get('event_type')
                 with producers[connection].acquire(block=True) as producer:
-                    producer.publish(event, routing_key='notifications.info')
+                    producer.publish(event,
+                                     exchange='nova',
+                                     routing_key='notifications.info',
+                                     )

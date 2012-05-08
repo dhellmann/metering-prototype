@@ -12,23 +12,22 @@ LOG = logging.getLogger(__name__)
 
 class NotificationClient(ConsumerMixin):
 
-    # FIXME(dhellmann): Only works with Nova right now
-    queue = Queue(name='notifications.info',
-                  exchange=Exchange(name='nova',
-                                    #type='fanout',
-                                    # FIXME(dhellmann): Why not fanout?
-                                    type='topic',
-                                    durable=False,
-                                    auto_delete=False,
-                                    ),
-                  routing_key='notifications.info',
-                  durable=False,
-                  auto_delete=False,
-                  )
-
-    def __init__(self, connection, callback):
+    def __init__(self, name, connection, callback):
         self.connection = connection
         self.callback = callback
+        # FIXME(dhellmann): Only works with Nova right now
+        LOG.debug('creating queue %s', name)
+        self.queue = Queue(name=name,
+                           exchange=Exchange(name='nova',
+                                             type='topic',
+                                             durable=False,
+                                             auto_delete=False,
+                                             ),
+                           routing_key='notifications.info',
+                           durable=False,
+                           auto_delete=True,
+                           exclusive=True,
+                           )
 
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=[self.queue],

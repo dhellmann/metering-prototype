@@ -42,7 +42,9 @@ with open(args.output_file, 'wb') as output:
         message.ack()
 
     with BrokerConnection(args.amqp) as conn:
-        handler = notificationclient.NotificationClient(conn, process_event)
+        handler = notificationclient.NotificationClient(
+            args.output_file, conn, process_event,
+            )
         try:
             handler.run()
         except KeyboardInterrupt:

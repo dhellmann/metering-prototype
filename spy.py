@@ -2,6 +2,7 @@
 
 import datetime
 import logging
+import os
 import pprint
 
 import notificationclient
@@ -153,7 +154,10 @@ if __name__ == '__main__':
     root_logger.setLevel(logging.DEBUG)
 
     with BrokerConnection(args.amqp) as conn:
-        handler = notificationclient.NotificationClient(conn, process_event)
+        handler = notificationclient.NotificationClient('spy%s' % os.getpid(),
+                                                        conn,
+                                                        process_event,
+                                                        )
         try:
             handler.run()
         except KeyboardInterrupt:
