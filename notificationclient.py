@@ -1,4 +1,3 @@
-import abc
 import logging
 
 import eventlet
@@ -12,7 +11,6 @@ LOG = logging.getLogger(__name__)
 
 
 class NotificationClient(ConsumerMixin):
-    __metaclass__ = abc.ABCMeta
 
     # FIXME(dhellmann): Only works with Nova right now
     queue = Queue(name='notifications.info',
@@ -26,8 +24,9 @@ class NotificationClient(ConsumerMixin):
                   auto_delete=False,
                   )
 
-    def __init__(self, connection):
+    def __init__(self, connection, callback):
         self.connection = connection
+        self.callback = callback
 
     def get_consumers(self, Consumer, channel):
         return [Consumer(queues=[self.queue],
@@ -36,7 +35,7 @@ class NotificationClient(ConsumerMixin):
                 ]
 
     def process_event(self, body, message):
-        eventlet.spawn_n(self._process_event, body, message)
+        eventlet.spawn_n(self.callback, body, message)
 
     def on_consume_ready(self, *args, **kwds):
         LOG.debug('ready to receive notifications')
@@ -45,8 +44,4 @@ class NotificationClient(ConsumerMixin):
         LOG.debug('shutting down')
 
     def on_iteration(self, *args, **kwds):
-        pass
-
-    @abc.abstractmethod
-    def _process_event(self, body, message):
         pass
