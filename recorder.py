@@ -33,6 +33,7 @@ root_logger.setLevel(logging.DEBUG)
 with open(args.output_file, 'wb') as output:
 
     def process_event(body, message):
+        LOG.debug(body.get('event_type', 'unknown event'))
         pickle.dump(body, output)
         message.ack()
 
