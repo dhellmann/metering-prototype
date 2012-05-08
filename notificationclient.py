@@ -15,6 +15,8 @@ class NotificationClient(ConsumerMixin):
     # FIXME(dhellmann): Only works with Nova right now
     queue = Queue(name='notifications.info',
                   exchange=Exchange(name='nova',
+                                    #type='fanout',
+                                    # FIXME(dhellmann): Why not fanout?
                                     type='topic',
                                     durable=False,
                                     auto_delete=False,
