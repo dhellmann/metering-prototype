@@ -20,6 +20,10 @@ parser = argparse.ArgumentParser(
 parser.add_argument('output_file',
                     help='the data file to create',
                     )
+parser.add_argument('--amqp',
+                    default='amqp://guest:secrete@localhost//',
+                    help='location of AMQP service',
+                    )
 args = parser.parse_args()
 
 console = logging.StreamHandler(sys.stderr)
@@ -37,7 +41,7 @@ with open(args.output_file, 'wb') as output:
         pickle.dump(body, output)
         message.ack()
 
-    with BrokerConnection('amqp://guest:secrete@localhost//') as conn:
+    with BrokerConnection(args.amqp) as conn:
         handler = notificationclient.NotificationClient(conn, process_event)
         try:
             handler.run()
