@@ -1,6 +1,3 @@
-# Doesn't see exists events. Not waiting long enough, or listening in
-# the wrong way?
-
 from pprint import pprint
 
 import eventlet
@@ -25,7 +22,6 @@ class MessageHandler(ConsumerMixin):
 
     def __init__(self, connection):
         self.connection = connection
-        self.count = 0
 
     def on_consume_ready(self, *args, **kwds):
         print 'Ready to receive', args, kwds
@@ -47,28 +43,28 @@ class MessageHandler(ConsumerMixin):
         #print 'spawned', res
 
     def _process_event(self, body, message):
-        #print 'Raw body:', body
+        print 'Raw body:', body
         # message is a kombu.transport.pyamqplib.Message
         #print 'Message :', message
-        # event_type = body['event_type']
-        # if not event_type.startswith('compute.instance'):
-        #     print event_type, body['timestamp']
-        # else:
-        #     payload = body['payload']
-        #     interesting = dict(
-        #         event_type=body['event_type'],
-        #         timestamp=body['timestamp'],
-        #         display_name=payload['display_name'],
-        #         user_id=payload['user_id'],
-        #         address=payload.get('address'),
-        #         tenant_id=payload.get('tenant_id'),
-        #         instance_id=payload.get('instance_id'),
-        #         )
-        #     pprint(interesting)
-        # print
+        event_type = body.get('event_type')
+        if event_type is None:
+            print 'unrecognized message'
+        elif not event_type.startswith('compute.instance'):
+            print event_type, body['timestamp']
+        else:
+            payload = body['payload']
+            interesting = dict(
+                event_type=body['event_type'],
+                timestamp=body['timestamp'],
+                display_name=payload['display_name'],
+                user_id=payload['user_id'],
+                address=payload.get('address'),
+                tenant_id=payload.get('tenant_id'),
+                instance_id=payload.get('instance_id'),
+                )
+            pprint(interesting)
+        print
         message.ack()
-        self.should_stop = body.get('stop_now', False)
-        self.count += 1
 
 
 if __name__ == '__main__':
@@ -87,4 +83,4 @@ if __name__ == '__main__':
             handler.run()
         except KeyboardInterrupt:
             pass
-        print 'Exiting after', handler.count
+        print 'Exiting'

@@ -56,10 +56,10 @@ if __name__ == "__main__":
                }
 
     with producers[connection].acquire(block=True) as producer:
-        for i in xrange(10000):
+        for i in xrange(1000):
             producer.publish(payload,
                              routing_key='notifications.info',
                              )
-        producer.publish({'stop_now': True},
-                         routing_key='notifications.info',
-                         )
+        # producer.publish({'stop_now': True},
+        #                  routing_key='notifications.info',
+        #                  )
