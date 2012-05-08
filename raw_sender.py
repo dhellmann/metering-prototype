@@ -17,7 +17,16 @@ queue = Queue(name='notifications.info',
               )
 
 if __name__ == "__main__":
+    import argparse
+    
     from kombu import BrokerConnection
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('count',
+                        default=100,
+                        type=int,
+                        )
+    args = parser.parse_args()
 
     connection = BrokerConnection('amqp://guest:secrete@localhost//')
 
@@ -56,7 +65,7 @@ if __name__ == "__main__":
                }
 
     with producers[connection].acquire(block=True) as producer:
-        for i in xrange(1000):
+        for i in xrange(args.count):
             producer.publish(payload,
                              routing_key='notifications.info',
                              )
