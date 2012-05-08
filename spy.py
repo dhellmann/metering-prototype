@@ -31,9 +31,19 @@ def process_event(body, message):
 
 
 if __name__ == '__main__':
+    import argparse
     import sys
 
     from kombu import BrokerConnection
+
+    parser = argparse.ArgumentParser(
+        description='play back recorded notification events',
+        )
+    parser.add_argument('--amqp',
+                        default='amqp://guest:secrete@localhost//',
+                        help='location of AMQP service',
+                        )
+    args = parser.parse_args()
 
     console = logging.StreamHandler(sys.stderr)
     console.setLevel(logging.DEBUG)
@@ -43,7 +53,7 @@ if __name__ == '__main__':
     root_logger.addHandler(console)
     root_logger.setLevel(logging.DEBUG)
 
-    with BrokerConnection('amqp://guest:secrete@localhost//') as conn:
+    with BrokerConnection(args.amqp) as conn:
         handler = notificationclient.NotificationClient(conn, process_event)
         try:
             handler.run()
